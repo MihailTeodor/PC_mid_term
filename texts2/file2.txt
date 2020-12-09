@@ -1,0 +1,1 @@
+Gli Executor sostituiscono la modalità di realizzazione diretta di Thread vista nel capitolo precedente, consentendo l’esecuzione di task asincroni e pool di Thread.

@@ -1,0 +1,3 @@
+A partire da Java 8 le API per la concorrenza hanno avuto interessanti modifiche con l’introduzione degli Executor come strato di più alto livello nella gestione dei Thread.
+
+
