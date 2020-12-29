@@ -31,8 +31,8 @@ public class Par_thread implements Callable<ConcurrentHashMap<String, Integer>> 
             start += 1;
         }
 
-        for (int i = 0; i < N; i++) {
-            if(stop < fileString.length - 1){
+        for (int i = 0; i < N - 1; i++) {
+            if(stop < fileString.length){
                 while (fileString[(int) stop] != '.')
                     stop += 1;
                 stop += 1;
@@ -40,8 +40,8 @@ public class Par_thread implements Callable<ConcurrentHashMap<String, Integer>> 
         }
         stop -= 1;
 
-        if (stop > fileString.length-1)
-            stop = fileString.length-1;
+        if (stop > fileString.length)
+            stop = fileString.length;
 
         double i = start;
         String key;
@@ -63,8 +63,11 @@ public class Par_thread implements Callable<ConcurrentHashMap<String, Integer>> 
                 if (tmp == '.'){
                     if(i < stop)
                          k = i - count;
-                    else
+                    else {
+                        if(j != N - 1)
+                            j += N;
                         k = i;
+                    }
                     i = i+1;
                     j = j+1;
                     builder.append(" ");
@@ -99,8 +102,8 @@ public class Par_thread implements Callable<ConcurrentHashMap<String, Integer>> 
 
     public ConcurrentHashMap<String, Integer> compute_chars(char[] fileString, ConcurrentHashMap<String, Integer> hashMap) {
 
-        if (stop > fileString.length-1){
-            stop = fileString.length-1;
+        if (stop > fileString.length - 1){
+            stop = fileString.length - 1;
         }
         for(double i = start + N - 1; i <= stop; i++) {
              builder = new StringBuilder();

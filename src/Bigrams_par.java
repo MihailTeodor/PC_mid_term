@@ -105,10 +105,14 @@ public class Bigrams_par {
             char[] file = process_txt(txtName);
             int fileLen = file.length;
             double k = Math.floor(fileLen / NUM_THREADS);
-
+            double stop;
             for (int i = 0; i < NUM_THREADS; i++) {
+                if(i == NUM_THREADS - 1)
+                    stop = fileLen -1;
+                else
+                    stop = ((i + 1) * k) + (N - 1) - 1;
 
-                Future f = executor.submit(new Par_thread("t" + i, i * k, ((i + 1) * k) + (N - 1) - 1, file));
+                Future f = executor.submit(new Par_thread("t" + i, i * k, stop, file));
                 futuresArray.add(f);
             }
         }

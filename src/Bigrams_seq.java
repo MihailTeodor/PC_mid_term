@@ -47,40 +47,55 @@ public class Bigrams_seq {
 
     public static HashMap<String, Integer> compute_words(char[] fileString, HashMap<String, Integer> hashMap) {
 
-        int i = 1;
-        while (i < fileString.length) {
+        int i = 0;
+        String key;
+        while (i < fileString.length -1) {
             StringBuilder builder = new StringBuilder();
             int j = 0;
             int k = 0;
             int count = 0;
+            key = null;
             while(j < N){
 
                 char tmp;
-
-                if(i < fileString.length)
+                if(i < fileString.length -1)
                     tmp = fileString[i];
                 else tmp = '.';
 
                 if (tmp == '.'){
-                    k = i - count;
+                    if(i < fileString.length -1)
+                        k = i - count;
+                    else {
+                        if(j != N - 1)
+                            j += N;
+                        k = i;
+                    }
                     i = i+1;
                     j = j+1;
                     builder.append(" ");
-                    count = 0;
+                    if(N > 2) {
+                        if (j == 1)
+                            count = N - 2;
+                    }else
+                        count = 0;
                 }else{
                     i = i+1;
                     builder.append(tmp);
                     count ++;
                 }
-            }
-            String key = builder.toString();
+                if(j == N)
+                    key = builder.toString();
 
-            if (!hashMap.containsKey(key)) {
-                hashMap.put(builder.toString(), 1);
             }
-            else if (hashMap.containsKey(key)) {
-                hashMap.put(builder.toString(), hashMap.get(key) + 1);
+
+            if(key != null) {
+                if (!hashMap.containsKey(key)) {
+                    hashMap.put(builder.toString(), 1);
+                } else if (hashMap.containsKey(key)) {
+                    hashMap.put(builder.toString(), hashMap.get(key) + 1);
+                }
             }
+
             if(N != 1)
                 i = k;
         }
