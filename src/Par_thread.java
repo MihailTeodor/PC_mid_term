@@ -25,43 +25,70 @@ public class Par_thread implements Callable<ConcurrentHashMap<String, Integer>> 
 
     public ConcurrentHashMap<String, Integer> compute_words(char[] fileString, ConcurrentHashMap<String, Integer> hashMap) {
 
-        if (stop > fileString.length-1){
-            stop = fileString.length-1;
+        if(start != 0) {
+            while (fileString[(int) start] != '.')
+                start -= 1;
+            start += 1;
         }
 
+        for (int i = 0; i < N; i++) {
+            if(stop < fileString.length - 1){
+                while (fileString[(int) stop] != '.')
+                    stop += 1;
+                stop += 1;
+            }
+        }
+        stop -= 1;
+
+        if (stop > fileString.length-1)
+            stop = fileString.length-1;
+
         double i = start;
+        String key;
+
         while (i < stop) {
             StringBuilder builder = new StringBuilder();
             int j = 0;
             double k = 0;
             int count = 0;
+            key = null;
+
             while(j < N){
-
                 char tmp;
-
                 if(i < stop)
                     tmp = fileString[(int)i];
-                else tmp = '.';
+                else
+                    tmp = '.';
 
                 if (tmp == '.'){
-                    k = i - count;
+                    if(i < stop)
+                         k = i - count;
+                    else
+                        k = i;
                     i = i+1;
                     j = j+1;
                     builder.append(" ");
-                    count = 0;
+                    if(N > 2) {
+                        if (j == 1)
+                            count = N - 2;
+                    }else
+                        count = 0;
                 }else{
                     i = i+1;
                     builder.append(tmp);
                     count ++;
                 }
-            }
-            String key = builder.toString();
+                if(j == N)
+                    key = builder.toString();
 
-            if (!thread_dict.containsKey(key)) {
-                thread_dict.put(builder.toString(), 1);
             }
-            else if (thread_dict.containsKey(key)) {
-                thread_dict.put(builder.toString(), thread_dict.get(key) + 1);
+
+            if(key != null) {
+                if (!thread_dict.containsKey(key)) {
+                    thread_dict.put(builder.toString(), 1);
+                } else if (thread_dict.containsKey(key)) {
+                    thread_dict.put(builder.toString(), thread_dict.get(key) + 1);
+                }
             }
             if(N != 1)
                 i = k;
@@ -75,7 +102,7 @@ public class Par_thread implements Callable<ConcurrentHashMap<String, Integer>> 
         if (stop > fileString.length-1){
             stop = fileString.length-1;
         }
-        for(double i = start + N - 1; i < stop; i++) {
+        for(double i = start + N - 1; i <= stop; i++) {
              builder = new StringBuilder();
 
             for(int j = N - 1; j >= 0; j--) {
