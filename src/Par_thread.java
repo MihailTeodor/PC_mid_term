@@ -1,29 +1,31 @@
+import java.util.HashMap;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 
-public class Par_thread implements Callable<ConcurrentHashMap<String, Integer>> {
+public class Par_thread implements Callable<HashMap<String, Integer>> {
 
-    public static int N = Bigrams_par.N;
-    public static String MODE = Bigrams_par.MODE;
+    public int N;
+    public String MODE;
 
     private double start, stop;
     private String id;
-    private ConcurrentHashMap<String, Integer> thread_dict;
+    private HashMap<String, Integer> thread_dict;
     private char[] fileString;
 
     StringBuilder builder;
 
-    public Par_thread(String id, double start, double stop, char[] fileString){
 
+    public Par_thread(String id, double start, double stop, char[] fileString, int N, String MODE){
+        this.N = N;
+        this.MODE = MODE;
         this.id = id;
         this.start = start;
         this.stop = stop;
         this.fileString = fileString;
-        this.thread_dict = new ConcurrentHashMap();
-
+        this.thread_dict = new HashMap();
     }
 
-    public ConcurrentHashMap<String, Integer> compute_words(char[] fileString, ConcurrentHashMap<String, Integer> hashMap) {
+
+    public HashMap<String, Integer> compute_words(char[] fileString, HashMap<String, Integer> hashMap) {
 
         if(start != 0) {
             while (fileString[(int) start] != '.')
@@ -31,9 +33,10 @@ public class Par_thread implements Callable<ConcurrentHashMap<String, Integer>> 
             start += 1;
         }
 
+        stop -= (N - 3);
         for (int i = 0; i < N - 1; i++) {
-            if(stop < fileString.length){
-                while (fileString[(int) stop] != '.')
+            if(stop <= fileString.length){
+                while (stop < fileString.length && fileString[(int) stop] != '.' )
                     stop += 1;
                 stop += 1;
             }
@@ -100,13 +103,10 @@ public class Par_thread implements Callable<ConcurrentHashMap<String, Integer>> 
     }
 
 
-    public ConcurrentHashMap<String, Integer> compute_chars(char[] fileString, ConcurrentHashMap<String, Integer> hashMap) {
+    public HashMap<String, Integer> compute_chars(char[] fileString, HashMap<String, Integer> hashMap) {
 
-        if (stop > fileString.length - 1){
-            stop = fileString.length - 1;
-        }
         for(double i = start + N - 1; i <= stop; i++) {
-             builder = new StringBuilder();
+            StringBuilder builder = new StringBuilder();
 
             for(int j = N - 1; j >= 0; j--) {
                 builder.append(fileString[(int)(i - j)]);
@@ -121,13 +121,11 @@ public class Par_thread implements Callable<ConcurrentHashMap<String, Integer>> 
                 thread_dict.put(builder.toString(), thread_dict.get(key) + 1);
             }
         }
-
-
         return hashMap;
     }
 
 
-    public ConcurrentHashMap<String, Integer> call() {
+    public HashMap<String, Integer> call() {
 
         if(MODE.equals("word"))
             compute_words(fileString, thread_dict);
