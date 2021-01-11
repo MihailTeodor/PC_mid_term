@@ -3,10 +3,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class test {
     public static void main(String[] args){
-        String[] dirList = {"texts10", "texts15"};
+        String[] dirList = {"texts10", "texts15", "texts42"};
         int[] N_gram = {2, 3, 5, 10};
         int[] num_threads = {2, 4, 8};
         int NUM_ITER = 10;
+        boolean use_future = false;
 
         String mode = "words";
 
@@ -49,12 +50,20 @@ public class test {
                         LinkedList<String> par_txtList = new LinkedList<String>();
                         pre_process.loadDatasets(par_txtList, dir);
 
-                        start = System.currentTimeMillis();
-                        Bigrams_par.iterate_txt(par_txtList, par_dict, mode, n_gram, th);
-                        end = System.currentTimeMillis();
+                        if(use_future) {
+                            start = System.currentTimeMillis();
+                            Bigrams_par.iterate_txt(par_txtList, par_dict, mode, n_gram, th);
+                            end = System.currentTimeMillis();
 
-                        tmp_time += (end - start);
+                            tmp_time += (end - start);
+                        }
+                        else{
+                            start = System.currentTimeMillis();
+                            Bigrams_par_no_future.iterate_txt(par_txtList, par_dict, mode, n_gram, th);
+                            end = System.currentTimeMillis();
 
+                            tmp_time += (end - start);
+                        }
                     }
                     double par_time = (tmp_time / (double)NUM_ITER);
 

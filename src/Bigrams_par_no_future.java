@@ -2,20 +2,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 
-public class Bigrams_par {
-
-    public static ConcurrentHashMap<String, Integer> HashMerge(HashMap<String, Integer> tmp_dict, ConcurrentHashMap<String, Integer> finalDict) {
-        for (HashMap.Entry<String, Integer> entry : tmp_dict.entrySet()) {
-            int newValue = entry.getValue();
-            String key = entry.getKey();
-
-            if (finalDict.putIfAbsent(key, newValue) != null) {
-                finalDict.computeIfPresent(key, (k, val) -> val + newValue);
-            }
-        }
-        return finalDict;
-    }
-
+public class Bigrams_par_no_future {
 
     public static void awaitTerminationAfterShutdown(ExecutorService threadPool) {
 
@@ -31,13 +18,7 @@ public class Bigrams_par {
     }
 
 
-    public static ConcurrentHashMap<String, Integer> iterate_txt(LinkedList<String> txtList, ConcurrentHashMap<String, Integer> dict, String MODE, int N, int NUM_THREADS) {
-
-        String MERGE = "PAR";
-
-      //  System.out.println("Computing " + N + "-grams of " + MODE + " using " + NUM_THREADS + " threads");
-
-        ArrayList<Future> futuresArray = new ArrayList<>();
+    public static ConcurrentHashMap<String, Integer> iterate_txt(LinkedList<String> txtList, ConcurrentHashMap<String, Integer> dict, String MODE, int num_bigrams, int NUM_THREADS) {
 
         ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
 
@@ -53,28 +34,12 @@ public class Bigrams_par {
                 if(i == NUM_THREADS - 1)
                     stop = fileLen -1;
                 else
-                    stop = ((i + 1) * k) + (N - 1) - 1;
+                    stop = ((i + 1) * k) + (num_bigrams - 1) - 1;
 
-                Future f = executor.submit(new Par_thread("t" + i, i * k, stop, file, N, MODE));
-                futuresArray.add(f);
+                executor.execute(new Par_thread_no_future("t" + i, i * k, stop, file, dict, num_bigrams, MODE));
             }
         }
-        try {
-
-            for (Future<HashMap<String, Integer>> f : futuresArray) {
-                HashMap<String, Integer> tmp_dict = f.get();
-
-                if(MERGE.equals("PAR")) {
-                    executor.execute(new merge_thread(tmp_dict, dict));
-                }
-                else
-                    HashMerge(tmp_dict, dict);
-            }
-            awaitTerminationAfterShutdown(executor);
-
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+        awaitTerminationAfterShutdown(executor);
         return dict;
     }
 
@@ -82,9 +47,8 @@ public class Bigrams_par {
     public static void main(String[] args) {
 
         String MODE = "words";
-        int N = 2;
+        int N = 10;
         int NUM_THREADS = 2;
-        String MERGE = "PAR";
 
         Scanner sc= new Scanner(System.in);
         System.out.println("Insert name of directory of files to load");
